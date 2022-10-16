@@ -1,15 +1,9 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import {
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  Image,
-  SafeAreaView,
+  StyleSheet
 } from "react-native";
 import { shareAsync } from "expo-sharing";
-import * as MediaLibrary from "expo-media-library";
 import CameraScreen from "./app/screen/Camera_screen";
 
 export default function App() {
@@ -84,22 +78,6 @@ export default function App() {
 
   return (
     <CameraScreen/>
-    // <Camera style={styles.container} ref={cameraRef}>
-    //   <View style={styles.buttonContainer}>
-    //     <Button
-    //       title="Flip Camera"
-    //       onPress={() => {
-    //         toggleCameraType(
-    //           type === Camera.Constants.Type.back
-    //             ? Camera.Constants.Type.front
-    //             : Camera.Constants.Type.back
-    //         );
-    //       }}
-    //     />
-    //     <Button title="Take Pic" onPress={takePic}/>
-    //   </View>
-    //   <StatusBar style="auto"></StatusBar>
-    // </Camera>
   );
 }
 

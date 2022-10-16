@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
-import Constants from 'expo-constants';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Modal } from "react-native";
+import Constants from "expo-constants";
 import { Camera, CameraType } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import AppIcon from "../components/appIcon/AppIcon";
@@ -8,10 +8,11 @@ import AppIcon from "../components/appIcon/AppIcon";
 const CameraScreen = () => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   // const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
-  const [Image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [typeCamera, setTypeCamera] = useState(Camera.Constants.Type.back);
   const [flash, setFlash] = useState(Camera.Constants.FlashMode.off);
   const cameraRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -22,32 +23,57 @@ const CameraScreen = () => {
   }, []);
 
   const takePicture = async () => {
-    if (cameraRef) {
-        try {
-            const data = await cameraRef.current.takePictureAsync();
-            console.log(data);
-            setImage(data.uri);
-        } catch (err) {
-            console.log(err)
-        }
+    if (!cameraRef) {
+      return
     }
-  }
 
-  const savePicture = async () => {
-    if (Image) {
-      try {
-        const asset = await MediaLibrary.createAssetAsync(image);
-        alert('Picture saved! 🎉');
-        setImage(null);
-        console.log('saved successfully');
-      } catch (error) {
-        console.log(error);
-      }
+    try {
+      const pic = await cameraRef.current.takePictureAsync();
+      setImagePreview(pic.uri);
+      setIsOpen(true);
+    } catch (error) {
+        console.log("Error taking pictures")
     }
   };
 
+  const closeImagePreview = () => {
+    setImagePreview(null)
+    setIsOpen(false)
+  }
+
+//   const savePicture = async () => {
+//     if (Image) {
+//       try {
+//         const asset = await MediaLibrary.createAssetAsync(image);
+//         alert("Picture saved! 🎉");
+//         setImage(null);
+//         console.log("saved successfully");
+//       } catch (error) {
+//         console.log(error);
+//       }
+//     }
+//   };
+
   if (hasCameraPermission === false) {
-    return <Text>No access to camera</Text>
+    return <Text>No access to camera</Text>;
+  }
+
+  if (imagePreview) {
+    return (
+      <Modal animationType="fade" visible={isOpen}>
+        <Image
+            source={{ uri: imagePreview }}
+            style={{ height: "100%", width: "100%" }}
+          />
+        <View style={styles.actionBottom}>
+          <AppIcon IonName="paper-plane-outline" size={25} color="#eee"></AppIcon>
+          <AppIcon IonName="paper-plane-outline" size={25} color='#0e153a' style={styles.sendBtn} ></AppIcon>
+        </View>
+        <View style={styles.closeBtn}>
+            <AppIcon IonName="close-circle-outline" size={25} color='#eee' onPress={closeImagePreview} />
+        </View>
+      </Modal>
+    );
   }
 
   const changeCameraType = () => {
@@ -62,48 +88,56 @@ const CameraScreen = () => {
 
   return (
     <View style={{ flex: 1 }}>
-        {!Image ?
-      <Camera style={{ flex: 1 }} type={typeCamera} flashMode={flash} ref={cameraRef}>
-        <TouchableOpacity style={styles.captureBtn} onPress={takePicture}></TouchableOpacity>
-        <View style={styles.header}>
-          <AppIcon
-            style={styles.headerIcons}
-            AntName="user"
-            color="#EB1D36"
-            size={22}
-          />
-          <AppIcon
-            style={styles.headerIcons}
-            IonName="camera-reverse-outline"
-            color="#EB1D36"
-            size={22}
-            onPress={changeCameraType}
-          />
-        </View>
+        <Camera
+          style={{ height: "100%", width: "100%" }}
+          type={typeCamera}
+          flashMode={flash}
+          ref={cameraRef}
+        >
+          <TouchableOpacity
+            style={styles.captureBtn}
+            onPress={takePicture}
+          ></TouchableOpacity>
+          <View style={styles.header}>
+            <AppIcon
+              style={styles.headerIcons}
+              AntName="user"
+              color="#EB1D36"
+              size={22}
+            />
+            <AppIcon
+              style={styles.headerIcons}
+              IonName="camera-reverse-outline"
+              color="#EB1D36"
+              size={22}
+              onPress={changeCameraType}
+            />
+          </View>
 
-        <View style={styles.sideItem}>
-          <AppIcon
-            style={styles.sideIcons}
-            IonName="camera-outline"
-            size={20}
-            color="#EB1D36"
-          />
-          <AppIcon
-            style={styles.sideIcons}
-            IonName="flash-outline"
-            size={20}
-            color={flash === Camera.Constants.FlashMode.off ? '#EB1D36' : '#f1f1f1'}
-            onPress={() => setFlash( flash === Camera.Constants.FlashMode.off
-            ? Camera.Constants.FlashMode.on 
-            : Camera.Constants.FlashMode.off
-            )}
-          />
-          {/* <AppIcon IonName="camera-outline" size={20} color="#EB1D36" /> */}
-        </View>
-      </Camera>
-      :
-      <Image source={{uri: Image}} />
-    }
+          <View style={styles.sideItem}>
+            <AppIcon
+              style={styles.sideIcons}
+              IonName="camera-outline"
+              size={20}
+              color="#EB1D36"
+            />
+            <AppIcon
+              style={styles.sideIcons}
+              IonName="flash-outline"
+              size={20}
+              color={
+                flash === Camera.Constants.FlashMode.off ? "#EB1D36" : "#f1f1f1"
+              }
+              onPress={() =>
+                setFlash(
+                  flash === Camera.Constants.FlashMode.off
+                    ? Camera.Constants.FlashMode.on
+                    : Camera.Constants.FlashMode.off
+                )
+              }
+            />
+          </View>
+        </Camera>
     </View>
   );
 };
@@ -113,7 +147,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: Constants.statusBarHeight
+    paddingTop: Constants.statusBarHeight,
   },
   btn: {
     padding: 20,
@@ -160,6 +194,24 @@ const styles = StyleSheet.create({
     height: 50,
     marginVertical: 8,
   },
+  actionBottom: {
+    position: "absolute",
+    bottom: 20,
+    padding: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%"
+  },
+  sendBtn: {
+    backgroundColor: "#D2001A",
+  },
+  closeBtn: {
+    padding: 15,
+    position: "absolute",
+    top: 15,
+    right: 5
+  }
 });
 
 export default CameraScreen;
