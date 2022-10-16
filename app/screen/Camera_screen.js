@@ -89,7 +89,7 @@ const CameraScreen = () => {
   return (
     <View style={{ flex: 1 }}>
         <Camera
-          style={{ height: "100%", width: "100%" }}
+          style={{ flex : 1 }}
           type={typeCamera}
           flashMode={flash}
           ref={cameraRef}
@@ -163,17 +163,17 @@ const styles = StyleSheet.create({
   },
   captureBtn: {
     position: "absolute",
-    bottom: 20,
+    bottom: 40,
     width: 90,
     height: 90,
     borderRadius: 100,
-    borderBottomColor: "#EB1D36",
+    borderColor: "#D2001A",
     borderWidth: 6,
     alignSelf: "center",
   },
   header: {
     position: "absolute",
-    top: 40,
+    top: 20,
     justifyContent: "space-between",
     padding: 15,
     flexDirection: "row",
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   sideItem: {
     position: "absolute",
-    top: 110,
+    top: 80,
     right: 0,
     padding: 15,
   },
